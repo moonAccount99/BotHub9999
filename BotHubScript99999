@@ -1,0 +1,203 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Bot Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "kkk", IntroText = "Bot Hub"})
+
+ local Tab = Window:MakeTab({
+	Name = "Tab Creator",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+ Tab:AddLabel("Creator Script : moonAccount")
+Tab:AddLabel("Biblioteca usada = OrionLib")
+local playerName = game.Players.LocalPlayer.Name
+
+Tab:AddLabel("Nome Do Jogador: " .. playerName)
+
+
+local Tab = Window:MakeTab({
+	Name = "Tab Main",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local Players = game:GetService("Players")
+
+local function setWalkSpeed(speed)
+    local character = Players.LocalPlayer.Character
+    if character and character:FindFirstChild("Humanoid") then
+        character.Humanoid.WalkSpeed = speed
+    end
+end
+
+Tab:AddTextbox({
+    Name = "Set Speed",
+    Default = "16",
+    TextDisappear = true,
+    Callback = function(value)
+        local speed = tonumber(value)
+        if speed then
+            setWalkSpeed(speed)
+        else
+            setWalkSpeed(16)
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+
+local function setJumpPower(power)
+    local character = Players.LocalPlayer.Character
+    if character and character:FindFirstChild("Humanoid") then
+        character.Humanoid.JumpPower = power
+    end
+end
+
+Tab:AddTextbox({
+    Name = "Set JumpPower",
+    Default = "50",
+    TextDisappear = true,
+    Callback = function(value)
+        local power = tonumber(value)
+        if power then
+            setJumpPower(power)
+        else
+            setJumpPower(50)
+        end
+    end
+})
+
+ local players = game:GetService("Players")
+local camera = game.Workspace.CurrentCamera
+
+local ESPEnabled = false
+
+local function createESP(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = player.Character.HumanoidRootPart
+        local distance = (rootPart.Position - camera.CFrame.p).Magnitude
+        local textSize = math.clamp(3000 / distance, 20, 100)
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Size = UDim2.new(0, textSize, 0, textSize)
+        billboard.Adornee = rootPart
+        billboard.AlwaysOnTop = true
+        billboard.Name = "ESP"
+        billboard.Parent = rootPart
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.TextScaled = true
+        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        textLabel.TextStrokeTransparency = 0
+        textLabel.Text = player.Name
+        textLabel.Parent = billboard
+    end
+end
+
+local function removeESP(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = player.Character.HumanoidRootPart
+        local billboard = rootPart:FindFirstChild("ESP")
+        if billboard then
+            billboard:Destroy()
+        end
+    end
+end
+
+local function updateESP()
+    for _, player in ipairs(players:GetPlayers()) do
+        if player ~= players.LocalPlayer then
+            if ESPEnabled then
+                createESP(player)
+            else
+                removeESP(player)
+            end
+        end
+    end
+end
+
+local function toggleESP(enabled)
+    ESPEnabled = enabled
+    updateESP()
+end
+
+Tab:AddToggle({
+    Name = "ESP",
+    Default = false,
+    Callback = toggleESP
+})
+
+players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        if ESPEnabled then
+            createESP(player)
+        end
+    end)
+end)
+
+players.PlayerRemoving:Connect(function(player)
+    removeESP(player)
+end)
+
+updateESP()
+
+local Tab = Window:MakeTab({
+	Name = "Tab Teleport",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+ 
+
+ local function TeleportToGame(placeId)
+    game:GetService("TeleportService"):TeleportToPlaceInstance(placeId, game.JobId, game.Players.LocalPlayer)
+end
+
+local function TeleportToGameFromTextbox(value)
+    local placeId = tonumber(value)
+    if placeId then
+        TeleportToGame(placeId)
+    else
+        print("Por favor, insira um ID de jogo válido.")
+    end
+end
+
+Tab:AddTextbox({
+    Name = "Id game Teleport",
+    Default = "Insira o ID do jogo",
+    TextDisappear = true,
+    Callback = TeleportToGameFromTextbox
+  
+})
+
+
+
+local Tab = Window:MakeTab({
+	Name = "Anti Afk",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+ 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local AntiAFKEnabled = false
+
+Tab:AddToggle({
+    Name = "Anti AFK",
+    Default = true,
+    Callback = function(enabled)
+        AntiAFKEnabled = enabled
+    end
+})
+
+while true do
+    wait(60)
+    
+    if AntiAFKEnabled then
+        local AFKInput = game:GetService("ReplicatedStorage").Events.AFKInput
+        AFKInput:FireServer()
+    end
+end
+
+  
