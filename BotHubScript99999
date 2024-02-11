@@ -141,6 +141,68 @@ end)
 
 updateESP()
 
+local RunService = game:GetService("RunService")
+
+local function setGravity(value)
+    local gravity = tonumber(value)
+    if gravity then
+        workspace.Gravity = gravity
+    end
+end
+
+local function adjustJumpBehavior()
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpHeight = math.sqrt(2 * workspace.Gravity * humanoid.JumpHeight)
+        end
+    end
+end
+
+Tab:AddTextbox({
+    Name = "Gravity",
+    Default = tostring(workspace.Gravity),
+    TextDisappear = true,
+    Callback = function(value)
+        setGravity(value)
+        adjustJumpBehavior()
+    end
+})
+
+setGravity("196.2")
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        setGravity("196.2")
+        adjustJumpBehavior()
+    end)
+end)
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+    adjustJumpBehavior()
+end)
+
+local Players = game:GetService("Players")
+
+local function instantHeal(player)
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+    end
+end
+
+Tab:AddButton({
+    Name = "Cura Instantânea",
+    Callback = function()
+        while true do
+            instantHeal(Players.LocalPlayer)
+            wait(0)
+        end
+    end
+})
+
+Tab:AddParagraph("Aviso!","na hora que voce aperta nesse botao voce vai recupera vida muito rapido em loop em entao se tu aperta esse botao voce vai fica recuperando vida muito rapido em loop entao toma cuidado isso pode Dar Ban ou voce pode ser banido*")
+
 local Tab = Window:MakeTab({
 	Name = "Tab Teleport",
 	Icon = "rbxassetid://4483345998",
